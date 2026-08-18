@@ -1,0 +1,64 @@
+import { jsx, jsxs } from "react/jsx-runtime";
+//#region src/routes/policies.tsx?tsr-split=component
+var SECTIONS = [
+	{
+		id: "shipping",
+		t: "Shipping Policy",
+		b: "Orders are dispatched within 24–48 hours. Standard delivery takes 4–6 business days and is free on orders above ₹1,500; express delivery is 1–2 business days at ₹199. Every shipment is insured and tracked."
+	},
+	{
+		id: "returns",
+		t: "Return Policy",
+		b: "Unworn pieces in original packaging can be returned within 30 days of delivery. We arrange a free reverse pickup. Customised and engraved items are non-returnable."
+	},
+	{
+		id: "refunds",
+		t: "Refund Policy",
+		b: "Refunds are issued to the original payment method within 5–7 business days of the returned piece passing quality inspection. Cash-on-delivery orders are refunded by bank transfer."
+	},
+	{
+		id: "cancellation",
+		t: "Cancellation Policy",
+		b: "Orders can be cancelled free of charge any time before dispatch from your order details page or by contacting us. After dispatch, please use the return process."
+	},
+	{
+		id: "privacy",
+		t: "Privacy Policy",
+		b: "We collect only the information needed to fulfil your order and improve your experience. We never sell personal data. Payment details are handled entirely by our payment gateway and are never stored on our servers."
+	},
+	{
+		id: "terms",
+		t: "Terms & Conditions",
+		b: "By using this site you agree to purchase for personal use, provide accurate information, and respect our designs and imagery, which remain the intellectual property of Argent Silver."
+	}
+];
+function Policies() {
+	return /* @__PURE__ */ jsxs("div", {
+		className: "mx-auto max-w-3xl px-4 py-16 md:px-8",
+		children: [
+			/* @__PURE__ */ jsx("p", {
+				className: "eyebrow",
+				children: "Legal"
+			}),
+			/* @__PURE__ */ jsx("h1", {
+				className: "mt-2 text-4xl md:text-5xl",
+				children: "Policies"
+			}),
+			/* @__PURE__ */ jsx("div", {
+				className: "mt-12 space-y-10",
+				children: SECTIONS.map((s) => /* @__PURE__ */ jsxs("section", {
+					id: s.id,
+					children: [/* @__PURE__ */ jsx("h2", {
+						className: "text-2xl",
+						children: s.t
+					}), /* @__PURE__ */ jsx("p", {
+						className: "mt-3 text-sm leading-relaxed text-muted-foreground",
+						children: s.b
+					})]
+				}, s.id))
+			})
+		]
+	});
+}
+//#endregion
+export { Policies as component };
