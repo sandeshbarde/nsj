@@ -2,9 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { Gem, Sparkles, Truck, RotateCcw } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
-import { CATEGORIES, CATEGORY_IMAGE, PRODUCTS } from "@/data/products";
-import hero from "@/assets/hero.jpg";
-import craft from "@/assets/craft.jpg";
+import { CATEGORIES, CATEGORY_IMAGE, type Product } from "@/data/products";
+import { useCatalog } from "@/lib/catalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,10 +21,6 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const newArrivals = PRODUCTS.filter((p) => p.tags.includes("new")).slice(0, 4);
-const bestSellers = PRODUCTS.filter((p) => p.tags.includes("bestseller")).slice(0, 4);
-const signature = PRODUCTS.filter((p) => p.tags.includes("signature")).slice(0, 4);
-
 const REVIEWS = [
   { name: "Ananya R.", city: "Bengaluru", text: "The finish is far better than I expected. It genuinely looks like a luxury piece." },
   { name: "Rhea M.", city: "Mumbai", text: "Wore the layered necklace daily for months — still no tarnish. Beautifully made." },
@@ -33,11 +28,16 @@ const REVIEWS = [
 ];
 
 export default function Home() {
+  const { products, media } = useCatalog();
+  const newArrivals = products.filter((p) => p.tags.includes("new")).slice(0, 4);
+  const bestSellers = products.filter((p) => p.tags.includes("bestseller")).slice(0, 4);
+  const signature = products.filter((p) => p.tags.includes("signature")).slice(0, 4);
+  const categoryImages = { ...CATEGORY_IMAGE, rings: media.rings, earrings: media.earrings, necklaces: media.necklaces, bracelets: media.bracelets };
   return (
     <>
       <section className="relative">
         <img
-          src={hero}
+          src={media.hero}
           alt="Model wearing 925 sterling silver necklace and rings"
           width={1600}
           height={1200}
@@ -87,7 +87,7 @@ export default function Home() {
               <Link to="/shop" search={{ category: c.slug }} className="group block">
                 <div className="overflow-hidden bg-secondary">
                   <img
-                    src={CATEGORY_IMAGE[c.slug]}
+                    src={categoryImages[c.slug]}
                     alt={c.label}
                     loading="lazy"
                     width={800}
@@ -107,7 +107,7 @@ export default function Home() {
 
       <section className="bg-ink text-ink-foreground">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-20 md:grid-cols-2 md:px-8">
-          <img src={craft} alt="Silversmith hand-finishing a piece" loading="lazy" width={1400} height={900} className="w-full object-cover" />
+          <img src={media.craft} alt="Silversmith hand-finishing a piece" loading="lazy" width={1400} height={900} className="w-full object-cover" />
           <div>
             <p className="eyebrow text-ink-foreground/60">Our story</p>
             <h2 className="mt-3 text-4xl md:text-5xl">Silver, shaped slowly.</h2>
@@ -154,7 +154,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 pb-24 md:px-8">
         <Heading eyebrow="@argentsilver" title="From the community" />
         <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {PRODUCTS.slice(0, 4).map((p) => (
+          {products.slice(0, 4).map((p) => (
             <Link key={p.id} to="/product/$slug" params={{ slug: p.slug }} className="overflow-hidden bg-secondary">
               <img
                 src={p.image}
@@ -189,7 +189,7 @@ function ProductRow({
 }: {
   eyebrow: string;
   title: string;
-  products: typeof PRODUCTS;
+  products: Product[];
   to: Record<string, string>;
 }) {
   return (

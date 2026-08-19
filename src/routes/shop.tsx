@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ProductCard } from "@/components/ProductCard";
-import { CATEGORIES, PRODUCTS, formatINR, type Category } from "@/data/products";
+import { CATEGORIES, formatINR, type Category } from "@/data/products";
+import { useCatalog } from "@/lib/catalog";
 
 type Sort = "newest" | "price-asc" | "price-desc" | "popular";
 
@@ -53,12 +54,13 @@ export const Route = createFileRoute("/shop")({
 function ShopPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/shop" });
+  const { products: catalogProducts } = useCatalog();
 
   const set = (patch: Partial<ShopSearch>) =>
     navigate({ search: (prev: ShopSearch) => ({ ...prev, ...patch }) });
 
   const products = useMemo(() => {
-    let list = PRODUCTS.slice();
+    let list = catalogProducts.slice();
     if (search['q']) {
       const q = search['q'].toLowerCase();
       list = list.filter((p) => (p.name + " " + p.category).toLowerCase().includes(q));
@@ -82,7 +84,7 @@ function ShopPage() {
       default:
         return list;
     }
-  }, [search]);
+  }, [search, catalogProducts]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">

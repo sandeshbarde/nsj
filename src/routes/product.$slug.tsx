@@ -1,32 +1,14 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Minus, Plus, Star, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ProductCard } from "@/components/ProductCard";
-import { PRODUCTS, discountPct, formatINR, getProduct } from "@/data/products";
+import { discountPct, formatINR, type Product } from "@/data/products";
+import { useCatalog } from "@/lib/catalog";
 import { useShop } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
-    if (!product) throw notFound();
-    return { product };
-  },
-  head: ({ loaderData }) => {
-    if (!loaderData)
-      return { meta: [{ title: "Product unavailable — Argent" }, { name: "robots", content: "noindex" }] };
-    const p = loaderData.product;
-    return {
-      meta: [
-        { title: `${p.name} — 925 Sterling Silver | Argent` },
-        { name: "description", content: p.description.slice(0, 155) },
-        { property: "og:title", content: `${p.name} — Argent` },
-        { property: "og:description", content: p.description.slice(0, 155) },
-        { property: "og:type", content: "product" },
-      ],
-    };
-  },
   notFoundComponent: () => (
     <div className="px-4 py-32 text-center">
       <h1 className="text-3xl">Piece not found</h1>
@@ -44,16 +26,19 @@ export const Route = createFileRoute("/product/$slug")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const { products } = useCatalog();
+  const product = products.find((item) => item.slug === slug);
   const { addToCart, toggleWishlist, inWishlist } = useShop();
   const navigate = useNavigate();
+  if (!product) return <div className="px-4 py-32 text-center"><h1 className="text-3xl">Piece not found</h1><Link to="/shop" className="mt-4 inline-block text-sm underline underline-offset-4">Back to the collection</Link></div>;
   const [size, setSize] = useState(product.sizes[0] ?? "Free Size");
   const [qty, setQty] = useState(1);
   const [active, setActive] = useState(0);
   const oos = product.stock === 0;
 
-  const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
-  const complete = PRODUCTS.filter((p) => p.category !== product.category).slice(0, 4);
+  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const complete = products.filter((p) => p.category !== product.category).slice(0, 4);
 
   const add = () => {
     addToCart(product.id, size, qty);
@@ -194,6 +179,7 @@ function ProductPage() {
           </dl>
 
           <p className="mt-6 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+          {product.video && <video src={product.video} controls preload="metadata" className="mt-6 aspect-video w-full bg-secondary" />}
 
           <div className="mt-8 grid gap-4 border-t border-border pt-6 text-sm sm:grid-cols-3">
             <Perk icon={<Truck className="size-4" strokeWidth={1.25} />} title="Free shipping" text="Dispatched in 24–48 hrs" />
@@ -236,7 +222,7 @@ function Perk({ icon, title, text }: { icon: React.ReactNode; title: string; tex
   );
 }
 
-function Section({ title, products }: { title: string; products: typeof PRODUCTS }) {
+function Section({ title, products }: { title: string; products: Product[] }) {
   if (products.length === 0) return null;
   return (
     <section className="mt-20">

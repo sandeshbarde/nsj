@@ -32,6 +32,7 @@ export interface Product {
   stock: number;
   image: string;
   gallery: string[];
+  video?: string;
   tags: Array<"new" | "bestseller" | "signature" | "gift">;
   description: string;
   createdAt: string;

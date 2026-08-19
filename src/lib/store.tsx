@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { PRODUCTS, type Product } from "@/data/products";
+import { type Product } from "@/data/products";
+import { useCatalog } from "@/lib/catalog";
 
 export interface CartLine {
   productId: string;
@@ -34,6 +35,7 @@ const read = <T,>(key: string, fallback: T): T => {
 };
 
 export function ShopProvider({ children }: { children: ReactNode }) {
+  const { products } = useCatalog();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -54,7 +56,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const value = useMemo<ShopState>(() => {
     const lines = cart
       .map((l) => {
-        const product = PRODUCTS.find((p) => p.id === l.productId);
+        const product = products.find((p) => p.id === l.productId);
         return product ? { ...l, product } : null;
       })
       .filter(Boolean) as Array<CartLine & { product: Product }>;
@@ -67,7 +69,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       subtotal: lines.reduce((n, l) => n + l.product.price * l.qty, 0),
       addToCart: (productId, size, qty = 1) =>
         setCart((prev) => {
-          const product = PRODUCTS.find((p) => p.id === productId);
+          const product = products.find((p) => p.id === productId);
           const max = product?.stock ?? 0;
           const found = prev.find((l) => l.productId === productId && l.size === size);
           if (found) {
@@ -83,7 +85,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         setCart((prev) =>
           prev.flatMap((l) => {
             if (l.productId !== productId || l.size !== size) return [l];
-            const max = PRODUCTS.find((p) => p.id === productId)?.stock ?? 0;
+            const max = products.find((p) => p.id === productId)?.stock ?? 0;
             const next = Math.min(max, qty);
             return next <= 0 ? [] : [{ ...l, qty: next }];
           }),
@@ -95,7 +97,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         ),
       inWishlist: (productId) => wishlist.includes(productId),
     };
-  }, [cart, wishlist]);
+  }, [cart, wishlist, products]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

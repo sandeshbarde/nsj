@@ -15,6 +15,7 @@ import appCss from "../styles.css?url";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ShopProvider } from "@/lib/store";
+import { CatalogProvider } from "@/lib/catalog";
 
 function NotFoundComponent() {
   return (
@@ -203,6 +204,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <CatalogProvider>
       <ShopProvider>
         <Header />
 
@@ -214,6 +216,7 @@ function RootComponent() {
 
         <Toaster position="bottom-right" />
       </ShopProvider>
+      </CatalogProvider>
     </QueryClientProvider>
   );
 }

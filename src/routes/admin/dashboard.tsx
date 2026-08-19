@@ -420,6 +420,18 @@ function AdminDashboard() {
 
                 <ChevronRight className="text-black/25 transition group-hover:translate-x-1" />
               </Link>
+
+              <Link
+                to="/admin/media"
+                className="group flex items-center justify-between rounded-2xl border border-black/5 bg-white p-5 transition hover:-translate-y-0.5"
+              >
+                <div>
+                  <Settings className="mb-3 text-[#a17b35]" size={22} />
+                  <p className="font-medium">Photos &amp; Media</p>
+                  <p className="mt-1 text-xs text-black/40">Update storefront images</p>
+                </div>
+                <ChevronRight className="text-black/25 transition group-hover:translate-x-1" />
+              </Link>
             </div>
           </section>
 
