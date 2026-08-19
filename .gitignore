@@ -1,9 +1,80 @@
-@"
+# ==========================================
+# NSJ Jewellery - Git Ignore
+# ==========================================
+
+# Dependencies
 node_modules/
+
+# ==========================================
+# Build / Deployment
+# ==========================================
 dist/
 .vercel/
+.output/
+.nitro/
+
+# Vite cache
+.vite/
+
+# TanStack cache / generated files
+.tanstack/
+
+# ==========================================
+# Environment / Secrets
+# ==========================================
 .env
-.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Keep example environment file
 !.env.example
+
+# ==========================================
+# Logs
+# ==========================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# Editor / IDE
+# ==========================================
+.vscode/
+.idea/
+
+# VS Code local history
+.history/
+
+# ==========================================
+# Operating System
+# ==========================================
 .DS_Store
-"@ | Set-Content .gitignore
+.DS_Store?
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# Temporary files
+# ==========================================
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# ==========================================
+# Coverage / Testing
+# ==========================================
+coverage/
+.nyc_output/
+
+# ==========================================
+# TypeScript
+# ==========================================
+*.tsbuildinfo
