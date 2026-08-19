@@ -16,6 +16,7 @@ create policy "Users can read their own admin grant"
 alter table public.products enable row level security;
 
 alter table public.products
+  add column if not exists category text not null default 'Rings',
   add column if not exists image text,
   add column if not exists gallery jsonb not null default '[]'::jsonb,
   add column if not exists video text,
