@@ -11,7 +11,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { isAdmin } from "@/lib/admin";
+import { getAdminAccess } from "@/lib/admin";
+import { useAdminAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin/login")({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/admin/login")({
 
 function AdminLogin() {
   const navigate = useNavigate();
+  const { refresh } = useAdminAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,12 +54,14 @@ function AdminLogin() {
         return;
       }
 
-      if (!(await isAdmin())) {
+      const access = await getAdminAccess();
+      if (!access.ok) {
         await supabase.auth.signOut();
-        setError("This account is not authorised for admin access.");
+        setError(access.message);
         return;
       }
 
+      await refresh();
       await navigate({ to: "/admin/dashboard" });
     } finally {
       setLoading(false);

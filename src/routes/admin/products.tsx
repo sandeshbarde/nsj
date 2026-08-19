@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
-import { requireAdmin } from "@/lib/admin";
+import { getAdminAccess, requireAdmin } from "@/lib/admin";
+import { AdminGate } from "@/components/AdminGate";
 import {
   Archive,
   ChevronLeft,
@@ -87,8 +88,7 @@ const rowToProduct = (row: ProductRow): Product => {
   };
 };
 
-const productToRow = (product: Product) => ({
-  id: product.id,
+const productToPayload = (product: Product) => ({
   name: product.name.trim(),
   slug: product.slug.trim(),
   category: product.category,
@@ -248,7 +248,7 @@ const emptyProduct: Product = {
 
 export const Route = createFileRoute("/admin/products")({
   beforeLoad: requireAdmin,
-  component: AdminProducts,
+  component: () => <AdminGate><AdminProducts /></AdminGate>,
 });
 
 function AdminProducts() {
@@ -262,8 +262,20 @@ function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const verifyAdmin = async () => {
+    const access = await getAdminAccess();
+    if (access.ok) return true;
+    alert(access.message);
+    return false;
+  };
+
   const loadProducts = async () => {
     setLoading(true);
+
+    if (!(await verifyAdmin())) {
+      setLoading(false);
+      return;
+    }
 
     const { data, error } = await supabase
       .from("products")
@@ -278,28 +290,7 @@ function AdminProducts() {
       return;
     }
 
-    let dbProducts = ((data ?? []) as ProductRow[]).map(rowToProduct);
-
-    // One-time migration from the old localStorage product list.
-    if (dbProducts.length === 0) {
-      const legacyProducts = readLegacyProducts();
-
-      if (legacyProducts.length > 0) {
-        const { data: migrated, error: migrationError } = await supabase
-          .from("products")
-          .upsert(legacyProducts.map(productToRow), { onConflict: "id" })
-          .select("*");
-
-        if (!migrationError && migrated) {
-          dbProducts = (migrated as ProductRow[]).map(rowToProduct);
-          localStorage.removeItem(STORAGE_KEY);
-        } else if (migrationError) {
-          console.error("Product migration error:", migrationError);
-        }
-      }
-    }
-
-    setProducts(dbProducts);
+    setProducts(((data ?? []) as ProductRow[]).map(rowToProduct));
     setLoading(false);
   };
 
@@ -315,6 +306,7 @@ function AdminProducts() {
       `Delete "${product.name}"? This action cannot be undone.`,
     );
     if (!confirmed) return;
+    if (!(await verifyAdmin())) return;
 
     setSaving(true);
 
@@ -334,6 +326,7 @@ function AdminProducts() {
   const togglePublished = async (id: string) => {
     const product = products.find((item) => item.id === id);
     if (!product) return;
+    if (!(await verifyAdmin())) return;
 
     const published = !product.published;
     setProducts((current) =>
@@ -359,6 +352,7 @@ function AdminProducts() {
   const toggleFeatured = async (id: string) => {
     const product = products.find((item) => item.id === id);
     if (!product) return;
+    if (!(await verifyAdmin())) return;
 
     const featured = !product.featured;
     setProducts((current) =>
@@ -424,21 +418,21 @@ function AdminProducts() {
   };
 
   const handleSaveProduct = async (product: Product): Promise<boolean> => {
+    if (!(await verifyAdmin())) return false;
     setSaving(true);
 
-    const { data, error } = await supabase
-      .from("products")
-      .upsert(productToRow(product), { onConflict: "id" })
-      .select("*")
-      .single();
+    const payload = productToPayload(product);
+    const exists = products.some((item) => item.id === product.id);
+    const { data, error } = exists
+      ? await supabase.from("products").update(payload).eq("id", product.id).select("*").single()
+      : await supabase.from("products").insert(payload).select("*").single();
 
     setSaving(false);
 
     if (error) {
       console.error("Save product error:", error);
-      alert(
-        `Could not save product.\n\n${error.message}\n\nCheck your Supabase table, RLS policies and environment variables.`,
-      );
+      const isRlsError = /row-level security|permission denied/i.test(error.message);
+      alert(isRlsError ? "Admin authorization failed. Please login again." : "Could not connect to Supabase. Please try again.");
       return false;
     }
 

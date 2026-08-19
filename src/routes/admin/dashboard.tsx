@@ -24,10 +24,11 @@ import {
 import { useState } from "react";
 import { requireAdmin } from "@/lib/admin";
 import { supabase } from "@/lib/supabase";
+import { AdminGate } from "@/components/AdminGate";
 
 export const Route = createFileRoute("/admin/dashboard")({
   beforeLoad: requireAdmin,
-  component: AdminDashboard,
+  component: () => <AdminGate><AdminDashboard /></AdminGate>,
 });
 
 const stats = [
@@ -115,9 +116,9 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = () => {
-    void supabase.auth.signOut();
-    void navigate({
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    await navigate({
       to: "/admin/login",
     });
   };
@@ -247,7 +248,7 @@ function AdminDashboard() {
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={() => void handleLogout()}
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-white/50 transition hover:bg-red-500/10 hover:text-red-300"
           >
             <LogOut size={17} />

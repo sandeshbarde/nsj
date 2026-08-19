@@ -2,10 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ImagePlus, RotateCcw, Upload } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
+import { AdminGate } from "@/components/AdminGate";
 import { useCatalog, type SiteMedia } from "@/lib/catalog";
 import { supabase } from "@/lib/supabase";
 
-export const Route = createFileRoute("/admin/media")({ beforeLoad: requireAdmin, component: AdminMedia });
+export const Route = createFileRoute("/admin/media")({ beforeLoad: requireAdmin, component: () => <AdminGate><AdminMedia /></AdminGate> });
 
 const labels: Record<keyof SiteMedia, string> = {
   hero: "Hero image", craft: "Craft image", rings: "Rings image", earrings: "Earrings image", necklaces: "Necklaces image", bracelets: "Bracelets image",

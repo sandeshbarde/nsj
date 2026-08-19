@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { requireAdmin } from "@/lib/admin";
+import { AdminGate } from "@/components/AdminGate";
 import {
   Archive,
   ChevronLeft,
@@ -187,7 +188,7 @@ const statuses: Array<"All" | OrderStatus> = [
 
 export const Route = createFileRoute("/admin/orders")({
   beforeLoad: requireAdmin,
-  component: AdminOrders,
+  component: () => <AdminGate><AdminOrders /></AdminGate>,
 });
 
 function AdminOrders() {

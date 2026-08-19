@@ -14,7 +14,9 @@ import {
   XCircle,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
+import { getAdminAccess } from "@/lib/admin";
 import { supabase } from "@/lib/supabase";
+import { AdminGate } from "@/components/AdminGate";
 
 type Product = {
   id: string;
@@ -48,7 +50,7 @@ type StockFilter = "All" | "In Stock" | "Low Stock" | "Out of Stock";
 
 export const Route = createFileRoute("/admin/inventory")({
   beforeLoad: requireAdmin,
-  component: AdminInventory,
+  component: () => <AdminGate><AdminInventory /></AdminGate>,
 });
 
 function AdminInventory() {
@@ -134,6 +136,11 @@ function AdminInventory() {
   ).length;
 
   const updateStock = async (id: string, newStock: number) => {
+    const access = await getAdminAccess();
+    if (!access.ok) {
+      alert(access.message);
+      return;
+    }
     const stock = Math.max(0, Math.floor(newStock));
     const previous = products;
     setProducts((current) => current.map((product) => product.id === id ? { ...product, stock } : product));

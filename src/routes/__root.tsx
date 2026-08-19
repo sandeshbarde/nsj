@@ -16,6 +16,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ShopProvider } from "@/lib/store";
 import { CatalogProvider } from "@/lib/catalog";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -204,6 +205,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthProvider>
       <CatalogProvider>
       <ShopProvider>
         <Header />
@@ -217,6 +219,7 @@ function RootComponent() {
         <Toaster position="bottom-right" />
       </ShopProvider>
       </CatalogProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
