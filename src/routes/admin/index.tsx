@@ -1,18 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { requireAdmin } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin/")({
-  beforeLoad: () => {
-    if (typeof window !== "undefined") {
-      const authenticated = localStorage.getItem(
-        "nsj_admin_authenticated",
-      );
-
-      if (authenticated !== "true") {
-        throw redirect({
-          to: "/admin/login",
-        });
-      }
-    }
+  beforeLoad: async () => {
+    await requireAdmin();
+    throw redirect({ to: "/admin/dashboard" });
   },
 
   component: AdminIndex,

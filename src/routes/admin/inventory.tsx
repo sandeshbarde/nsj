@@ -13,6 +13,8 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import { requireAdmin } from "@/lib/admin";
+import { supabase } from "@/lib/supabase";
 
 type Product = {
   id: string;
@@ -30,71 +32,6 @@ type Product = {
   published: boolean;
 };
 
-const PRODUCT_STORAGE_KEY = "nsj_admin_products";
-
-const defaultProducts: Product[] = [
-  {
-    id: "NSJ-001",
-    name: "Silver Rose Ring",
-    slug: "silver-rose-ring",
-    category: "Rings",
-    price: 1499,
-    mrp: 1999,
-    stock: 25,
-    image: "",
-    description: "Elegant 925 sterling silver rose-inspired ring.",
-    purity: "925 Silver",
-    weightGrams: 4.2,
-    featured: true,
-    published: true,
-  },
-  {
-    id: "NSJ-002",
-    name: "Classic Silver Chain",
-    slug: "classic-silver-chain",
-    category: "Chains",
-    price: 2799,
-    mrp: 3499,
-    stock: 5,
-    image: "",
-    description: "Classic silver chain designed for everyday elegance.",
-    purity: "925 Silver",
-    weightGrams: 8.5,
-    featured: false,
-    published: true,
-  },
-  {
-    id: "NSJ-003",
-    name: "Pearl Drop Earrings",
-    slug: "pearl-drop-earrings",
-    category: "Earrings",
-    price: 1899,
-    mrp: 2499,
-    stock: 3,
-    image: "",
-    description: "Elegant pearl drop earrings with a refined silver finish.",
-    purity: "925 Silver",
-    weightGrams: 3.8,
-    featured: true,
-    published: true,
-  },
-  {
-    id: "NSJ-004",
-    name: "Elegant Silver Bracelet",
-    slug: "elegant-silver-bracelet",
-    category: "Bracelets",
-    price: 2299,
-    mrp: 2999,
-    stock: 14,
-    image: "",
-    description: "Minimal silver bracelet with a premium polished finish.",
-    purity: "925 Silver",
-    weightGrams: 6.2,
-    featured: false,
-    published: true,
-  },
-];
-
 const categories = [
   "All",
   "Rings",
@@ -110,6 +47,7 @@ const categories = [
 type StockFilter = "All" | "In Stock" | "Low Stock" | "Out of Stock";
 
 export const Route = createFileRoute("/admin/inventory")({
+  beforeLoad: requireAdmin,
   component: AdminInventory,
 });
 
@@ -122,40 +60,36 @@ function AdminInventory() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    const loadProducts = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, slug, category, price, mrp, stock, image, description, purity, weight_grams, featured, published")
+        .order("created_at", { ascending: false });
 
-  const loadProducts = () => {
-    const saved = localStorage.getItem(PRODUCT_STORAGE_KEY);
-
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-
-        if (Array.isArray(parsed)) {
-          setProducts(parsed);
-          return;
-        }
-      } catch {
-        // Use defaults below.
+      if (error) {
+        console.error("Load inventory error:", error);
+        alert(`Could not load inventory from Supabase.\n\n${error.message}`);
+        return;
       }
-    }
 
-    setProducts(defaultProducts);
-    localStorage.setItem(
-      PRODUCT_STORAGE_KEY,
-      JSON.stringify(defaultProducts),
-    );
-  };
+      setProducts((data ?? []).map((row) => ({
+        ...row,
+        image: row.image ?? "",
+        description: row.description ?? "",
+        purity: row.purity ?? "925 Silver",
+        weightGrams: Number(row.weight_grams ?? 0),
+      })));
+    };
 
-  const saveProducts = (updatedProducts: Product[]) => {
-    setProducts(updatedProducts);
+    void loadProducts();
 
-    localStorage.setItem(
-      PRODUCT_STORAGE_KEY,
-      JSON.stringify(updatedProducts),
-    );
-  };
+    const channel = supabase
+      .channel("admin-inventory-products")
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => void loadProducts())
+      .subscribe();
+
+    return () => { void supabase.removeChannel(channel); };
+  }, []);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -199,29 +133,25 @@ function AdminInventory() {
     (product) => product.stock === 0,
   ).length;
 
-  const updateStock = (id: string, newStock: number) => {
+  const updateStock = async (id: string, newStock: number) => {
     const stock = Math.max(0, Math.floor(newStock));
-
-    const updatedProducts = products.map((product) =>
-      product.id === id
-        ? {
-            ...product,
-            stock,
-          }
-        : product,
-    );
-
-    saveProducts(updatedProducts);
-
+    const previous = products;
+    setProducts((current) => current.map((product) => product.id === id ? { ...product, stock } : product));
+    const { error } = await supabase.from("products").update({ stock }).eq("id", id);
+    if (error) {
+      setProducts(previous);
+      alert(`Could not update stock.\n\n${error.message}`);
+      return;
+    }
     setEditingProduct(null);
   };
 
   const increaseStock = (product: Product, amount = 1) => {
-    updateStock(product.id, product.stock + amount);
+    void updateStock(product.id, product.stock + amount);
   };
 
   const decreaseStock = (product: Product, amount = 1) => {
-    updateStock(product.id, product.stock - amount);
+    void updateStock(product.id, product.stock - amount);
   };
 
   return (
@@ -691,7 +621,7 @@ function AdminInventory() {
           product={editingProduct}
           onClose={() => setEditingProduct(null)}
           onSave={(stock) =>
-            updateStock(editingProduct.id, stock)
+            void updateStock(editingProduct.id, stock)
           }
         />
       )}

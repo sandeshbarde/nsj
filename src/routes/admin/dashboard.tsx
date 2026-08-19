@@ -22,8 +22,11 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { requireAdmin } from "@/lib/admin";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin/dashboard")({
+  beforeLoad: requireAdmin,
   component: AdminDashboard,
 });
 
@@ -113,9 +116,8 @@ function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("nsj_admin_authenticated");
-
-    navigate({
+    void supabase.auth.signOut();
+    void navigate({
       to: "/admin/login",
     });
   };

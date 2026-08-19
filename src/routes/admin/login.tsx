@@ -11,6 +11,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { isAdmin } from "@/lib/admin";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin/login")({
   component: AdminLogin,
@@ -41,29 +43,22 @@ function AdminLogin() {
     setLoading(true);
 
     try {
-      // Demo authentication for local development.
-      // Replace with real backend authentication before production.
-      await new Promise((resolve) =>
-        setTimeout(resolve, 700),
-      );
-
-      if (
-        cleanEmail === "admin@nsj.com" &&
-        password === "NSJ@12345"
-      ) {
-        localStorage.setItem(
-          "nsj_admin_authenticated",
-          "true",
-        );
-
-        await navigate({
-          to: "/admin/dashboard",
-        });
-
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
+      if (signInError) {
+        setError("Invalid admin email or password.");
         return;
       }
 
-      setError("Invalid admin email or password.");
+      if (!(await isAdmin())) {
+        await supabase.auth.signOut();
+        setError("This account is not authorised for admin access.");
+        return;
+      }
+
+      await navigate({ to: "/admin/dashboard" });
     } finally {
       setLoading(false);
     }
@@ -279,25 +274,6 @@ function AdminLogin() {
                   : "Sign in to Admin"}
               </button>
             </form>
-
-            {/* Demo Credentials */}
-            <div className="mt-6 rounded-xl border border-[#d8c7a5] bg-[#fbf7ed] p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#8b6b32]">
-                Local Development Login
-              </p>
-
-              <div className="mt-3 space-y-1 text-xs text-black/60">
-                <p>
-                  <strong>Email:</strong>{" "}
-                  admin@nsj.com
-                </p>
-
-                <p>
-                  <strong>Password:</strong>{" "}
-                  NSJ@12345
-                </p>
-              </div>
-            </div>
 
             {/* Back */}
             <div className="mt-8 text-center">

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/admin";
 import {
   Archive,
   ChevronLeft,
@@ -246,6 +247,7 @@ const emptyProduct: Product = {
 };
 
 export const Route = createFileRoute("/admin/products")({
+  beforeLoad: requireAdmin,
   component: AdminProducts,
 });
 
