@@ -54,7 +54,8 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           <Heart className={cn("size-4", wished && "fill-foreground")} strokeWidth={1.25} />
         </button>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0 group-focus-within:translate-y-0">
+        {/* Mobile: always visible. Desktop (sm+): slides up on hover */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-2 sm:translate-y-full sm:p-3 sm:transition-transform sm:duration-300 sm:group-hover:translate-y-0 sm:group-focus-within:translate-y-0">
           <button
             type="button"
             disabled={oos}
@@ -62,7 +63,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
               addToCart(product.id, product.sizes[0] ?? "Free Size");
               toast.success("Added to bag", { description: product.name });
             }}
-            className="pointer-events-auto flex w-full items-center justify-center gap-2 bg-ink px-4 py-3 text-[11px] tracking-[0.2em] uppercase text-ink-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="pointer-events-auto flex w-full items-center justify-center gap-2 bg-ink px-3 py-3 text-[10px] tracking-[0.18em] uppercase text-ink-foreground transition-opacity active:opacity-70 disabled:opacity-40 sm:px-4 sm:text-[11px] sm:tracking-[0.2em]"
           >
             <ShoppingBag className="size-3.5" strokeWidth={1.5} />
             {oos ? "Sold out" : "Add to bag"}

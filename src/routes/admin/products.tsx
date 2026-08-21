@@ -89,6 +89,7 @@ const rowToProduct = (row: ProductRow): Product => {
 };
 
 const productToPayload = (product: Product) => ({
+  id: product.id || undefined,
   name: product.name.trim(),
   slug: product.slug.trim(),
   category: product.category,
@@ -432,7 +433,13 @@ function AdminProducts() {
     if (error) {
       console.error("Save product error:", error);
       const isRlsError = /row-level security|permission denied/i.test(error.message);
-      alert(isRlsError ? "Admin authorization failed. Please login again." : "Could not connect to Supabase. Please try again.");
+      const isNetworkError = /fetch|network|failed to fetch/i.test(error.message);
+      const message = isRlsError
+        ? "Admin authorization failed. Please login again."
+        : isNetworkError
+          ? "Could not reach Supabase. Check your connection and try again."
+          : `Save failed: ${error.message} (${error.code ?? "unknown"})`;
+      alert(message);
       return false;
     }
 

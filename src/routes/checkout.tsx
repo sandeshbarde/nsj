@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { formatINR } from "@/data/products";
@@ -96,13 +96,22 @@ function CheckoutPage() {
   const steps = ["Details", "Address", "Shipping", "Payment"];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 md:px-8">
-      <h1 className="text-4xl">Checkout</h1>
+    <div className="mx-auto max-w-6xl px-4 py-10 md:py-14 md:px-8">
+      <h1 className="font-display text-3xl md:text-4xl">Checkout</h1>
 
-      <ol className="mt-6 flex flex-wrap gap-6 text-[11px] tracking-[0.2em] uppercase">
+      {/* Step indicator */}
+      <ol className="mt-6 flex gap-0">
         {steps.map((s, i) => (
-          <li key={s} className={i === step ? "underline underline-offset-8" : "text-muted-foreground"}>
-            {i + 1}. {s}
+          <li key={s} className="flex flex-1 items-center">
+            <span className={`flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase ${i === step ? "font-medium" : "text-muted-foreground"}`}>
+              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] ${i === step ? "bg-foreground text-background" : i < step ? "bg-secondary text-foreground" : "border border-border"}`}>
+                {i + 1}
+              </span>
+              <span className="hidden sm:inline">{s}</span>
+            </span>
+            {i < steps.length - 1 && (
+              <span className="mx-2 flex-1 border-t border-border" />
+            )}
           </li>
         ))}
       </ol>
@@ -240,7 +249,7 @@ function CheckoutPage() {
   );
 }
 
-function Fieldset({ title, children }: { title: string; children: React.ReactNode }) {
+function Fieldset({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="border border-border p-6">
       <h2 className="eyebrow">{title}</h2>

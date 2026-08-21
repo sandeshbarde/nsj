@@ -13,9 +13,10 @@ export async function getAdminAccess(): Promise<AdminAccess> {
     return { ok: false, session: null, user: null, message: "Your admin session has expired. Please login again." };
   }
 
+  // getUser() re-validates the JWT against Supabase Auth servers (more secure than getSession alone).
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
-    return { ok: false, session: null, user: null, message: "Your admin session has expired. Please login again." };
+    return { ok: false, session: null, user: null, message: "Could not validate your session. Please login again." };
   }
 
   const { data: adminUser, error: adminError } = await supabase
@@ -25,11 +26,16 @@ export async function getAdminAccess(): Promise<AdminAccess> {
     .maybeSingle();
 
   if (adminError) {
+    const isConnErr = /fetch|network|failed to fetch/i.test(adminError.message);
+    const message = isConnErr
+      ? "Could not reach Supabase. Check your internet connection and try again."
+      : `Admin check failed (${adminError.code ?? adminError.message}). Please try again.`;
     console.error("Admin authorization lookup failed:", adminError);
-    return { ok: false, session: null, user: null, message: "Could not verify admin access. Please try again." };
+    return { ok: false, session: null, user: null, message };
   }
+
   if (!adminUser) {
-    return { ok: false, session: null, user: null, message: "Your account is authenticated but is not an admin." };
+    return { ok: false, session: null, user: null, message: "This account does not have admin access." };
   }
 
   return { ok: true, session: sessionData.session, user: userData.user };
@@ -39,8 +45,11 @@ export async function isAdmin() {
   return (await getAdminAccess()).ok;
 }
 
-/** TanStack route guard for every protected admin route. */
+/**
+ * TanStack route guard for every protected admin route.
+ * NOTE: No SSR bypass — if the session check fails for any reason, the user
+ * is redirected to login. This ensures no admin page is silently left unguarded.
+ */
 export async function requireAdmin() {
-  if (typeof window === "undefined") return;
   if (!(await isAdmin())) throw redirect({ to: "/admin/login" });
 }

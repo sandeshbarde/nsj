@@ -415,25 +415,26 @@
 
 @media (max-width: 768px) {
   html {
-    scroll-padding-top: 90px;
+    scroll-padding-top: 110px;
   }
 
   body {
     font-size: 15px;
+    line-height: 1.65;
   }
 
   h1 {
-    font-size: clamp(2.4rem, 10vw, 4.5rem);
-    line-height: 1.02;
+    font-size: clamp(2rem, 9vw, 3.5rem);
+    line-height: 1.05;
   }
 
   h2 {
-    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-size: clamp(1.75rem, 7.5vw, 3rem);
     line-height: 1.08;
   }
 
   h3 {
-    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    font-size: clamp(1.35rem, 5.5vw, 2.25rem);
     line-height: 1.12;
   }
 
@@ -450,7 +451,7 @@
   }
 
   .section-padding {
-    padding-block: 4rem;
+    padding-block: 3.5rem;
   }
 
   .nsj-grid-products {
@@ -460,7 +461,7 @@
 
   .nsj-hero {
     min-height: auto;
-    padding-block: 5rem;
+    padding-block: 4.5rem;
   }
 
   .nsj-hero-content {

@@ -13,8 +13,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import { requireAdmin } from "@/lib/admin";
-import { getAdminAccess } from "@/lib/admin";
+import { requireAdmin, getAdminAccess } from "@/lib/admin";
 import { supabase } from "@/lib/supabase";
 import { AdminGate } from "@/components/AdminGate";
 

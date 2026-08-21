@@ -27,11 +27,27 @@ const REVIEWS = [
   { name: "Karan S.", city: "Delhi", text: "Bought the rope chain as a gift. Packaging alone made the moment special." },
 ];
 
-export default function Home() {
+// NOTE: Not exported — TanStack Router references this via component:Home above.
+// Exporting route-file components prevents code splitting.
+function Home() {
   const { products, media } = useCatalog();
-  const newArrivals = products.filter((p) => p.tags.includes("new")).slice(0, 4);
-  const bestSellers = products.filter((p) => p.tags.includes("bestseller")).slice(0, 4);
-  const signature = products.filter((p) => p.tags.includes("signature")).slice(0, 4);
+
+  // Tagged products take priority. If no tags exist, fall back using
+  // different sort orders so all 3 sections always show real products.
+  const taggedNew        = products.filter((p) => p.tags.includes("new"));
+  const taggedBestSeller = products.filter((p) => p.tags.includes("bestseller"));
+  const taggedSignature  = products.filter((p) => p.tags.includes("signature"));
+
+  // Fallback sorts — ISO date strings compare correctly as plain strings
+  // (avoids new Date() which can cause SSR/client hydration mismatches)
+  const byNewest  = [...products].sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+  const byReviews = [...products].sort((a, b) => b.reviews - a.reviews);
+  const byRating  = [...products].sort((a, b) => b.rating - a.rating);
+
+  const newArrivals = taggedNew.length        > 0 ? taggedNew.slice(0, 4)        : byNewest.slice(0, 4);
+  const bestSellers = taggedBestSeller.length > 0 ? taggedBestSeller.slice(0, 4) : byReviews.slice(0, 4);
+  const signature   = taggedSignature.length  > 0 ? taggedSignature.slice(0, 4)  : byRating.slice(0, 4);
+
   const categoryImages = { ...CATEGORY_IMAGE, rings: media.rings, earrings: media.earrings, necklaces: media.necklaces, bracelets: media.bracelets };
   return (
     <>
@@ -50,9 +66,11 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="mx-auto w-full max-w-7xl px-6 md:px-8"
           >
-            <p className="eyebrow">Argent · Est. 2016</p>
-            <h1 className="mt-4 max-w-xl text-5xl leading-[1.05] md:text-7xl">THE ART OF SILVER</h1>
-            <p className="mt-5 max-w-sm text-sm text-muted-foreground md:text-base">
+            <p className="eyebrow text-foreground/60">NSJ · Est. 2016</p>
+            <h1 className="mt-4 max-w-xl font-display text-[clamp(2.5rem,8vw,5.5rem)] leading-[1.02] tracking-wide">
+              THE ART OF SILVER
+            </h1>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-foreground/60 md:text-base">
               Timeless jewellery, thoughtfully designed.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -106,19 +124,28 @@ export default function Home() {
       <ProductRow eyebrow="Loved most" title="Best Sellers" products={bestSellers} to={{ tag: "bestseller" as const }} />
 
       <section className="bg-ink text-ink-foreground">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-20 md:grid-cols-2 md:px-8">
-          <img src={media.craft} alt="Silversmith hand-finishing a piece" loading="lazy" width={1400} height={900} className="w-full object-cover" />
-          <div>
+        <div className="mx-auto grid max-w-7xl items-center gap-0 md:grid-cols-2">
+          <div className="overflow-hidden">
+            <img
+              src={media.craft}
+              alt="Silversmith hand-finishing a piece"
+              loading="lazy"
+              width={1400}
+              height={900}
+              className="aspect-[4/3] w-full object-cover md:aspect-auto md:h-full"
+            />
+          </div>
+          <div className="px-6 py-12 md:px-12 md:py-16">
             <p className="eyebrow text-ink-foreground/60">Our story</p>
-            <h2 className="mt-3 text-4xl md:text-5xl">Silver, shaped slowly.</h2>
-            <p className="mt-5 max-w-md text-sm leading-relaxed text-ink-foreground/70">
-              Every Argent piece begins at a workbench in Jaipur, where our silversmiths cast, file and polish
+            <h2 className="mt-3 font-display text-[clamp(2rem,6vw,3.5rem)] leading-[1.06]">Silver, shaped slowly.</h2>
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-ink-foreground/70 md:text-base">
+              Every NSJ piece begins at a workbench in Jaipur, where our silversmiths cast, file and polish
               by hand. We work only in 925 sterling silver — never plated brass — so each design keeps its
               lustre for years, not seasons.
             </p>
             <Link
               to="/our-craft"
-              className="mt-8 inline-block border border-ink-foreground/40 px-8 py-4 text-[11px] tracking-[0.2em] uppercase"
+              className="mt-8 inline-block border border-ink-foreground/40 px-8 py-4 text-[11px] tracking-[0.2em] uppercase transition-colors hover:bg-ink-foreground hover:text-ink"
             >
               Discover our craft
             </Link>
@@ -176,7 +203,7 @@ function Heading({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <div className="text-center">
       <p className="eyebrow">{eyebrow}</p>
-      <h2 className="mt-3 text-4xl md:text-5xl">{title}</h2>
+      <h2 className="mt-3 font-display text-[clamp(2rem,6vw,3.5rem)]">{title}</h2>
     </div>
   );
 }
@@ -192,15 +219,16 @@ function ProductRow({
   products: Product[];
   to: Record<string, string>;
 }) {
+  if (products.length === 0) return null;
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
+    <section className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
       <Heading eyebrow={eyebrow} title={title} />
-      <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-8 md:mt-10 md:grid-cols-4 md:gap-x-6 md:gap-y-10">
         {products.map((p, i) => (
           <ProductCard key={p.id} product={p} index={i} />
         ))}
       </div>
-      <div className="mt-10 text-center">
+      <div className="mt-8 text-center md:mt-10">
         <Link to="/shop" search={to} className="text-[11px] tracking-[0.2em] uppercase underline underline-offset-8">
           View all
         </Link>

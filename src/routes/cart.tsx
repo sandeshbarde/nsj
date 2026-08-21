@@ -41,14 +41,14 @@ function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 md:px-8">
-      <h1 className="text-4xl">Shopping Bag</h1>
+    <div className="mx-auto max-w-6xl px-4 py-10 md:py-14 md:px-8">
+      <h1 className="font-display text-3xl md:text-4xl">Shopping Bag</h1>
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_360px]">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
         <ul className="divide-y divide-border border-y border-border">
           {lines.map((l) => (
-            <li key={l.productId + l.size} className="flex gap-4 py-6">
-              <Link to="/product/$slug" params={{ slug: l.product.slug }} className="w-24 shrink-0">
+            <li key={l.productId + l.size} className="flex gap-4 py-5">
+              <Link to="/product/$slug" params={{ slug: l.product.slug }} className="w-20 shrink-0 sm:w-24">
                 <img
                   src={l.product.image}
                   alt={l.product.name}
@@ -58,10 +58,10 @@ function CartPage() {
                   className="aspect-4/5 w-full object-cover"
                 />
               </Link>
-              <div className="flex-1">
-                <div className="flex justify-between gap-4">
-                  <div>
-                    <Link to="/product/$slug" params={{ slug: l.product.slug }} className="font-display text-lg">
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link to="/product/$slug" params={{ slug: l.product.slug }} className="font-display text-base leading-snug hover:opacity-70 md:text-lg">
                       {l.product.name}
                     </Link>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -75,6 +75,7 @@ function CartPage() {
                     type="button"
                     aria-label="Remove item"
                     onClick={() => removeFromCart(l.productId, l.size)}
+                    className="shrink-0 p-1 opacity-50 transition-opacity hover:opacity-100"
                   >
                     <X className="size-4" strokeWidth={1.25} />
                   </button>
@@ -84,7 +85,7 @@ function CartPage() {
                     <button
                       type="button"
                       aria-label="Decrease quantity"
-                      className="px-3 py-2"
+                      className="px-3 py-2.5"
                       onClick={() => setQty(l.productId, l.size, l.qty - 1)}
                     >
                       <Minus className="size-3" strokeWidth={1.5} />
@@ -93,20 +94,20 @@ function CartPage() {
                     <button
                       type="button"
                       aria-label="Increase quantity"
-                      className="px-3 py-2"
+                      className="px-3 py-2.5"
                       onClick={() => setQty(l.productId, l.size, l.qty + 1)}
                     >
                       <Plus className="size-3" strokeWidth={1.5} />
                     </button>
                   </div>
-                  <span className="text-sm">{formatINR(l.product.price * l.qty)}</span>
+                  <span className="text-sm font-medium">{formatINR(l.product.price * l.qty)}</span>
                 </div>
               </div>
             </li>
           ))}
         </ul>
 
-        <aside className="h-fit bg-secondary p-6">
+        <aside className="h-fit rounded-sm border border-border bg-secondary p-6">
           <h2 className="eyebrow">Order summary</h2>
           <div className="mt-5 flex gap-2">
             <input
@@ -115,7 +116,7 @@ function CartPage() {
               maxLength={20}
               placeholder="Coupon code"
               aria-label="Coupon code"
-              className="w-full border border-border bg-background px-3 py-2 text-sm outline-none"
+              className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
             />
             <button
               type="button"
@@ -124,18 +125,18 @@ function CartPage() {
                 setDiscount(res.discount);
                 res.ok ? toast.success(res.message) : toast.error(res.message);
               }}
-              className="border border-foreground px-4 text-[11px] tracking-[0.2em] uppercase"
+              className="shrink-0 border border-foreground px-4 text-[11px] tracking-[0.2em] uppercase"
             >
               Apply
             </button>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Try SILVER10 or FIRST500</p>
 
-          <dl className="mt-6 space-y-2 border-t border-border pt-4 text-sm">
+          <dl className="mt-6 space-y-2.5 border-t border-border pt-4 text-sm">
             <Row label="Subtotal" value={formatINR(subtotal)} />
             {discount > 0 && <Row label="Discount" value={`− ${formatINR(discount)}`} />}
             <Row label="Shipping" value={shipping === 0 ? "Free" : formatINR(shipping)} />
-            <div className="flex justify-between border-t border-border pt-3 text-base">
+            <div className="flex justify-between border-t border-border pt-3 text-base font-medium">
               <dt>Total</dt>
               <dd>{formatINR(total)}</dd>
             </div>
@@ -143,7 +144,7 @@ function CartPage() {
 
           <Link
             to="/checkout"
-            className="mt-6 block bg-ink px-6 py-4 text-center text-[11px] tracking-[0.2em] uppercase text-ink-foreground"
+            className="mt-6 block bg-ink px-6 py-4 text-center text-[11px] tracking-[0.2em] uppercase text-ink-foreground transition-opacity hover:opacity-90"
           >
             Proceed to checkout
           </Link>

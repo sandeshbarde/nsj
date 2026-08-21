@@ -108,6 +108,9 @@ export function useShop() {
   return ctx;
 }
 
+// ⚠️ SECURITY NOTE: These coupon codes are in the frontend JS bundle and visible
+// to anyone who inspects the source. In production, coupon validation should be
+// moved to a server-side Edge Function so codes cannot be enumerated by users.
 export const COUPONS: Record<string, { type: "pct" | "flat"; value: number; min: number }> = {
   SILVER10: { type: "pct", value: 10, min: 1500 },
   FIRST500: { type: "flat", value: 500, min: 3000 },

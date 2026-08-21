@@ -105,7 +105,7 @@ export function Header() {
             <Link
               key={item.label}
               to={item.to}
-              {...(item.search ? { search: item.search } : {})}
+              {...("search" in item ? { search: item.search } : {})}
               className="whitespace-nowrap text-[10px] uppercase tracking-[0.18em] transition-opacity duration-200 hover:opacity-50 lg:text-[11px] lg:tracking-[0.2em]"
             >
               {item.label}
@@ -250,7 +250,7 @@ export function Header() {
               <Link
                 key={item.label}
                 to={item.to}
-                {...(item.search ? { search: item.search } : {})}
+                {...("search" in item ? { search: item.search } : {})}
                 onClick={closeMenu}
                 className="border-b border-border py-4 text-[11px] uppercase tracking-[0.22em] transition-opacity hover:opacity-50"
               >

@@ -2,6 +2,10 @@ import rings from "@/assets/cat-rings.jpg";
 import earrings from "@/assets/cat-earrings.jpg";
 import necklaces from "@/assets/cat-necklaces.jpg";
 import bracelets from "@/assets/cat-bracelets.jpg";
+import bangles from "@/assets/cat-Bangles.jpg";
+import chains from "@/assets/cat-Chains.jpg";
+import anklets from "@/assets/cat-Anklets.jpg";
+import pendants from "@/assets/cat-Pendants.jpg";
 
 export type Category =
   | "rings"
@@ -42,11 +46,11 @@ export const CATEGORY_IMAGE: Record<Category, string> = {
   rings,
   earrings,
   necklaces,
-  pendants: necklaces,
-  chains: bracelets,
+  pendants,
+  chains,
   bracelets,
-  bangles: bracelets,
-  anklets: bracelets,
+  bangles,
+  anklets,
 };
 
 export const CATEGORIES: { slug: Category; label: string }[] = [

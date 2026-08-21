@@ -7,6 +7,7 @@ import { discountPct, formatINR, type Product } from "@/data/products";
 import { useCatalog } from "@/lib/catalog";
 import { useShop } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import WhatsAppProductButton from "@/components/WhatsAppProductButton";
 
 export const Route = createFileRoute("/product/$slug")({
   notFoundComponent: () => (
@@ -27,11 +28,34 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { slug } = Route.useParams();
-  const { products } = useCatalog();
+  const { products, loading } = useCatalog();
   const product = products.find((item) => item.slug === slug);
   const { addToCart, toggleWishlist, inWishlist } = useShop();
   const navigate = useNavigate();
-  if (!product) return <div className="px-4 py-32 text-center"><h1 className="text-3xl">Piece not found</h1><Link to="/shop" className="mt-4 inline-block text-sm underline underline-offset-4">Back to the collection</Link></div>;
+
+  // While Supabase is loading, show a spinner — never flash "not found" too early
+  if (loading && !product) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+          <p className="mt-4 text-sm text-muted-foreground">Loading product…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="px-4 py-32 text-center">
+        <h1 className="text-3xl">Piece not found</h1>
+        <Link to="/shop" className="mt-4 inline-block text-sm underline underline-offset-4">
+          Back to the collection
+        </Link>
+      </div>
+    );
+  }
+
   const [size, setSize] = useState(product.sizes[0] ?? "Free Size");
   const [qty, setQty] = useState(1);
   const [active, setActive] = useState(0);
@@ -82,20 +106,20 @@ function ProductPage() {
 
         <div>
           <p className="eyebrow">925 Sterling Silver</p>
-          <h1 className="mt-2 text-4xl">{product.name}</h1>
-          <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-            <Star className="size-3.5 fill-foreground text-foreground" strokeWidth={0} />
+          <h1 className="mt-2 font-display text-3xl leading-tight md:text-4xl">{product.name}</h1>
+          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+            <Star className="size-3 fill-foreground text-foreground" strokeWidth={0} />
             {product.rating.toFixed(1)} · {product.reviews} reviews
           </div>
 
           <div className="mt-5 flex items-baseline gap-3">
-            <span className="text-2xl">{formatINR(product.price)}</span>
-            <span className="text-muted-foreground line-through">{formatINR(product.mrp)}</span>
-            <span className="text-sm">{discountPct(product)}% off</span>
+            <span className="text-2xl font-medium">{formatINR(product.price)}</span>
+            <span className="text-sm text-muted-foreground line-through">{formatINR(product.mrp)}</span>
+            <span className="rounded bg-secondary px-2 py-0.5 text-xs">{discountPct(product)}% off</span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Inclusive of all taxes</p>
 
-          <p className={cn("mt-4 text-sm", oos ? "text-destructive" : "text-muted-foreground")}>
+          <p className={cn("mt-3 text-sm", oos ? "text-destructive" : "text-muted-foreground")}>
             {oos ? "Out of stock" : product.stock <= 5 ? `Only ${product.stock} left` : "In stock"} · SKU AG-
             {product.id.padStart(4, "0")}
           </p>
@@ -169,6 +193,14 @@ function ProductPage() {
             >
               Buy now
             </button>
+          </div>
+
+          <div className="mt-3">
+            <WhatsAppProductButton
+              productName={product.name}
+              price={product.price}
+              productUrl={typeof window !== "undefined" ? window.location.href : ""}
+            />
           </div>
 
           <dl className="mt-8 grid grid-cols-2 gap-y-3 border-t border-border pt-6 text-sm">
