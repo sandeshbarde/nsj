@@ -7,9 +7,9 @@ export const Route = createFileRoute("/track-order")({
   }),
   head: () => ({
     meta: [
-      { title: "Track Your Order — Argent Silver" },
+      { title: "Track Your Order — NSJ Jewellery" },
       { name: "description", content: "Enter your order number and email to see live status from confirmed to delivered." },
-      { property: "og:title", content: "Track Your Order — Argent Silver" },
+      { property: "og:title", content: "Track Your Order — NSJ Jewellery" },
       { property: "og:description", content: "Live status for your Argent order." },
     ],
   }),

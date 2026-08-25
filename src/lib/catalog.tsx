@@ -68,34 +68,66 @@ function mapProduct(row: SupabaseProductRow): Product {
 
 
 type Catalog = { products: Product[]; media: SiteMedia; loading: boolean };
-const CatalogContext = createContext<Catalog>({ products: [], media: defaultMedia, loading: true });
+const CatalogContext = createContext<Catalog>({ products: PRODUCTS, media: defaultMedia, loading: false });
 
 export function CatalogProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [media, setMedia] = useState<SiteMedia>(defaultMedia);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
-      const [productResult, mediaResult] = await Promise.all([
-        supabase.from("products").select("*").eq("published", true).order("created_at", { ascending: false }),
-        supabase.from("site_media").select("key, image_url"),
-      ]);
-      if (!productResult.error && productResult.data?.length) setProducts(productResult.data.map(mapProduct));
-      if (!mediaResult.error && mediaResult.data) {
-        setMedia((current) => mediaResult.data.reduce((next, row) => {
-          if (row.key in next && typeof row.image_url === "string" && row.image_url) next[row.key as MediaKey] = row.image_url;
-          return next;
-        }, { ...current }));
+      try {
+        const [productResult, mediaResult] = await Promise.allSettled([
+          supabase.from("products").select("*").eq("published", true).order("created_at", { ascending: false }),
+          supabase.from("site_media").select("key, image_url"),
+        ]);
+
+        if (!isMounted) return;
+
+        if (productResult.status === "fulfilled" && !productResult.value.error && productResult.value.data?.length) {
+          setProducts(productResult.value.data.map(mapProduct));
+        }
+        if (mediaResult.status === "fulfilled" && !mediaResult.value.error && mediaResult.value.data) {
+          setMedia((current) =>
+            mediaResult.value.data!.reduce(
+              (next, row) => {
+                if (row.key in next && typeof row.image_url === "string" && row.image_url) {
+                  next[row.key as MediaKey] = row.image_url;
+                }
+                return next;
+              },
+              { ...current }
+            )
+          );
+        }
+      } catch (err) {
+        console.error("Error loading catalog from Supabase:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
     };
+
     void load();
-    const channel = supabase.channel("storefront-content")
-      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => void load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "site_media" }, () => void load())
-      .subscribe();
-    return () => { void supabase.removeChannel(channel); };
+
+    try {
+      const channel = supabase
+        .channel("storefront-content")
+        .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => void load())
+        .on("postgres_changes", { event: "*", schema: "public", table: "site_media" }, () => void load())
+        .subscribe();
+
+      return () => {
+        isMounted = false;
+        void supabase.removeChannel(channel);
+      };
+    } catch (err) {
+      console.error("Realtime subscription error:", err);
+      return () => {
+        isMounted = false;
+      };
+    }
   }, []);
 
   const value = useMemo(() => ({ products, media, loading }), [products, media, loading]);

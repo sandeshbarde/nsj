@@ -3,6 +3,7 @@ import { Heart, Minus, Plus, Star, Truck, RotateCcw, ShieldCheck } from "lucide-
 import { useState } from "react";
 import { toast } from "sonner";
 import { ProductCard } from "@/components/ProductCard";
+import { ReviewSection } from "@/components/ReviewSection";
 import { discountPct, formatINR, type Product } from "@/data/products";
 import { useCatalog } from "@/lib/catalog";
 import { useShop } from "@/lib/store";
@@ -226,6 +227,8 @@ function ProductPage() {
           </div>
         </div>
       </div>
+
+      <ReviewSection productId={product.id} productName={product.name} />
 
       <Section title="You may also like" products={related} />
       <Section title="Complete the look" products={complete} />

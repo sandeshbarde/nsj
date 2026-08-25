@@ -5,9 +5,9 @@ export const Route = createFileRoute("/our-craft")({
   head: () => ({
     meta: [
       { title: "Our Craft — 925 Silver Craftsmanship | Argent" },
-      { name: "description", content: "How Argent silver jewellery is made: casting, filing, stone setting, polishing and quality checks." },
+      { name: "description", content: "How NSJ Jewellery jewellery is made: casting, filing, stone setting, polishing and quality checks." },
       { property: "og:title", content: "Our Craft — 925 Silver Craftsmanship" },
-      { property: "og:description", content: "Inside the making of Argent sterling silver jewellery." },
+      { property: "og:description", content: "Inside the making of NSJ sterling silver jewellery." },
     ],
   }),
   component: Craft,

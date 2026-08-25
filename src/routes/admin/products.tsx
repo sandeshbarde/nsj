@@ -376,12 +376,17 @@ function AdminProducts() {
     }
   };
 
-  const createSlug = (value: string) =>
-    value
+  const createSlug = (value: string) => {
+    const base = value
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
+    // Add a short timestamp suffix to guarantee uniqueness across products
+    const suffix = Date.now().toString(36).slice(-5);
+    const safe = base.length >= 2 ? base : "nsj-product";
+    return `${safe}-${suffix}`;
+  };
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -422,10 +427,20 @@ function AdminProducts() {
     if (!(await verifyAdmin())) return false;
     setSaving(true);
 
-    const payload = productToPayload(product);
     const exists = products.some((item) => item.id === product.id);
+
+    // Auto-generate ID and unique slug for new products
+    const finalProduct = exists
+      ? product
+      : {
+          ...product,
+          id: product.id || `NSJ-${Date.now().toString(36).toUpperCase().slice(-6)}`,
+          slug: product.slug || createSlug(product.name),
+        };
+
+    const payload = productToPayload(finalProduct);
     const { data, error } = exists
-      ? await supabase.from("products").update(payload).eq("id", product.id).select("*").single()
+      ? await supabase.from("products").update(payload).eq("id", finalProduct.id).select("*").single()
       : await supabase.from("products").insert(payload).select("*").single();
 
     setSaving(false);
@@ -1193,7 +1208,8 @@ function ProductForm({
                   setForm((current) => ({
                     ...current,
                     name,
-                    slug: current.slug || createSlug(name),
+                    // Keep existing slug if editing; leave blank for new products
+                    // (a unique slug is generated automatically on save)
                   }));
                 }}
                 placeholder="Silver Rose Ring"
@@ -1421,12 +1437,18 @@ function ProductForm({
           <Field label="Slug">
             <input
               value={form.slug}
-              onChange={(event) =>
-                update("slug", createSlug(event.target.value))
-              }
-              placeholder="silver-rose-ring"
+              onChange={(event) => {
+                // Store raw value — uniqueness suffix is added on save
+                const raw = event.target.value
+                  .toLowerCase()
+                  .replace(/[^a-z0-9-]+/g, "-")
+                  .replace(/^-+/, "");
+                update("slug", raw);
+              }}
+              placeholder="auto-generated from name"
               className="admin-input"
             />
+            <p className="mt-1 text-[11px] text-black/40">Leave blank to auto-generate a unique slug on save.</p>
           </Field>
 
           {/* Options */}

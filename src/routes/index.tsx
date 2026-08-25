@@ -8,13 +8,13 @@ import { useCatalog } from "@/lib/catalog";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Argent — The Art of Silver | 925 Sterling Silver Jewellery" },
+      { title: "NSJ Jewellery — The Art of Silver | 925 Sterling Silver Jewellery" },
       {
         name: "description",
         content:
           "Timeless 925 sterling silver jewellery, thoughtfully designed and hand-finished in India. Rings, earrings, necklaces, chains and more.",
       },
-      { property: "og:title", content: "Argent — The Art of Silver" },
+      { property: "og:title", content: "NSJ Jewellery — The Art of Silver" },
       { property: "og:description", content: "Timeless jewellery, thoughtfully designed." },
     ],
   }),

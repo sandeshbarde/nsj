@@ -8,9 +8,9 @@ import { applyCoupon, useShop } from "@/lib/store";
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "Secure Checkout — Argent Silver" },
+      { title: "Secure Checkout — NSJ Jewellery" },
       { name: "description", content: "Complete your sterling silver order with secure checkout and free shipping." },
-      { property: "og:title", content: "Secure Checkout — Argent Silver" },
+      { property: "og:title", content: "Secure Checkout — NSJ Jewellery" },
       { property: "og:description", content: "Complete your order securely." },
       { name: "robots", content: "noindex" },
     ],

@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/ring-size-guide")({
   head: () => ({
     meta: [
-      { title: "Ring Size Guide (India) — Argent Silver" },
+      { title: "Ring Size Guide (India) — NSJ Jewellery" },
       { name: "description", content: "Indian ring size chart with diameter and circumference, plus how to measure your ring size at home." },
       { property: "og:title", content: "Ring Size Guide (India) — Argent" },
       { property: "og:description", content: "Find your Indian ring size in two minutes." },

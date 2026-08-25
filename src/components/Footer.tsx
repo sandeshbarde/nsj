@@ -25,7 +25,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="font-display text-2xl uppercase tracking-[0.3em]">
-              Argent
+              NSJ
             </div>
 
             <p className="mt-4 max-w-xs text-sm text-ink-foreground/60">
@@ -120,9 +120,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-14 flex flex-col gap-2 border-t border-ink-foreground/15 pt-6 text-[11px] uppercase tracking-[0.15em] text-ink-foreground/50 md:flex-row md:justify-between">
-          <span>
-            © {new Date().getFullYear()} Argent Silver
-          </span>
+          <span>© {new Date().getFullYear()} NSJ Jewellery</span>
 
           <span>
             925 Sterling Silver · Made in India

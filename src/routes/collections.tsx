@@ -4,9 +4,9 @@ import { CATEGORIES, CATEGORY_IMAGE } from "@/data/products";
 export const Route = createFileRoute("/collections")({
   head: () => ({
     meta: [
-      { title: "Collections — Argent Sterling Silver" },
-      { name: "description", content: "Explore Argent's silver jewellery collections by category, occasion and edit." },
-      { property: "og:title", content: "Collections — Argent Sterling Silver" },
+      { title: "Collections — NSJ sterling Silver" },
+      { name: "description", content: "Explore NSJ's silver jewellery collections by category, occasion and edit." },
+      { property: "og:title", content: "Collections — NSJ sterling Silver" },
       { property: "og:description", content: "Explore our silver jewellery collections." },
     ],
   }),

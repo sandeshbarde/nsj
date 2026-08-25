@@ -3,9 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/policies")({
   head: () => ({
     meta: [
-      { title: "Shipping, Returns & Privacy Policies — Argent Silver" },
+      { title: "Shipping, Returns & Privacy Policies — NSJ Jewellery" },
       { name: "description", content: "Argent's shipping, return, refund, cancellation and privacy policies, plus terms of use." },
-      { property: "og:title", content: "Policies — Argent Silver" },
+      { property: "og:title", content: "Policies — NSJ Jewellery" },
       { property: "og:description", content: "Shipping, returns, refunds, privacy and terms." },
     ],
   }),
@@ -18,7 +18,7 @@ const SECTIONS = [
   { id: "refunds", t: "Refund Policy", b: "Refunds are issued to the original payment method within 5–7 business days of the returned piece passing quality inspection. Cash-on-delivery orders are refunded by bank transfer." },
   { id: "cancellation", t: "Cancellation Policy", b: "Orders can be cancelled free of charge any time before dispatch from your order details page or by contacting us. After dispatch, please use the return process." },
   { id: "privacy", t: "Privacy Policy", b: "We collect only the information needed to fulfil your order and improve your experience. We never sell personal data. Payment details are handled entirely by our payment gateway and are never stored on our servers." },
-  { id: "terms", t: "Terms & Conditions", b: "By using this site you agree to purchase for personal use, provide accurate information, and respect our designs and imagery, which remain the intellectual property of Argent Silver." },
+  { id: "terms", t: "Terms & Conditions", b: "By using this site you agree to purchase for personal use, provide accurate information, and respect our designs and imagery, which remain the intellectual property of NSJ Jewellery." },
 ];
 
 function Policies() {

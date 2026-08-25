@@ -7,9 +7,9 @@ export const Route = createFileRoute("/order-success")({
   }),
   head: () => ({
     meta: [
-      { title: "Order Confirmed — Argent Silver" },
+      { title: "Order Confirmed — NSJ Jewellery" },
       { name: "description", content: "Your sterling silver order has been placed successfully." },
-      { property: "og:title", content: "Order Confirmed — Argent Silver" },
+      { property: "og:title", content: "Order Confirmed — NSJ Jewellery" },
       { property: "og:description", content: "Thank you for your order." },
       { name: "robots", content: "noindex" },
     ],

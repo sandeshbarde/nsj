@@ -8,9 +8,9 @@ import { applyCoupon, useShop } from "@/lib/store";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "Your Bag — Argent Silver" },
+      { title: "Your Bag — NSJ Jewellery" },
       { name: "description", content: "Review the sterling silver pieces in your shopping bag before checkout." },
-      { property: "og:title", content: "Your Bag — Argent Silver" },
+      { property: "og:title", content: "Your Bag — NSJ Jewellery" },
       { property: "og:description", content: "Review your sterling silver selection." },
     ],
   }),
